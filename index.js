@@ -13,6 +13,7 @@ const
   INT = 'INT',
   ASSIGN = 'ASSIGN',
   PLUS = 'PLUS',
+  MINUS = 'MINUS',
   COMMA = 'COMMA',
   SEMICOLON = 'SEMICOLON',
   LPAREN = "LPAREN",
@@ -124,6 +125,10 @@ const tokenizer = (input) => {
       tokens.push(createToken(PLUS, char))
     }
 
+    if ( char === '-') {
+      tokens.push(createToken(MINUS, char))
+    }
+
     currentIdx++
   }
 
@@ -157,7 +162,7 @@ const buildAST = (tokens) => {
 
   // <expression> ::= <integer> | <integer> <operator> <expression>
   const parseExp = () => {
-    console.log({ current: _tokens[currentIdx]})
+    // root expression node
     const node = {
       type: 'Expression',
       op: null,
@@ -165,6 +170,7 @@ const buildAST = (tokens) => {
     }
 
     const next = peek()
+
     // single int
     if (!next) {
       node.data.push(_tokens[currentIdx])
@@ -174,8 +180,9 @@ const buildAST = (tokens) => {
     }
 
 
-    if (next.type === PLUS) {
-      node.op = PLUS
+    // handle addition
+    if (next.type === PLUS || next.type === MINUS) {
+      node.op = next.type
       const left = {
         type: 'Expression',
         op: null,
@@ -192,12 +199,12 @@ const buildAST = (tokens) => {
       currentIdx++
       return node
     }
-
   }
 
   while(currentIdx <= _tokens.length - 1) {
     const token = _tokens[currentIdx]
 
+    // parse expressions
     if (token.type === INT) {
       const node = parseExp()
       rootAst.data.push(node)
@@ -205,13 +212,14 @@ const buildAST = (tokens) => {
     
   }
 
+  logNode(rootAst)
   return rootAst
 }
 
 const logNode = (node) => console.log(JSON.stringify(node, null ,2))
 
 const init = () => {
-  const input = `let five = 5;
+  const advancedInput = `let five = 5;
   let ten = 10;
 
   let add = fn(x, y) {
@@ -220,10 +228,8 @@ const init = () => {
 
   let result = add(five, ten);`
 
-  const tokens = tokenizer('15 + 2 + 1 + 3')
+  const tokens = tokenizer('15 + 2 + 5 - 1')
   const ast = buildAST(tokens)
-
-  logNode({ ast })
 
 }
 
