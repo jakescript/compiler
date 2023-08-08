@@ -14,6 +14,8 @@ const
   ASSIGN = 'ASSIGN',
   PLUS = 'PLUS',
   MINUS = 'MINUS',
+  MULTIPLY = 'MULTIPLY',
+  DIVIDE = 'DIVIDE',
   COMMA = 'COMMA',
   SEMICOLON = 'SEMICOLON',
   LPAREN = "LPAREN",
@@ -129,6 +131,13 @@ const tokenizer = (input) => {
       tokens.push(createToken(MINUS, char))
     }
 
+    if ( char === '*') {
+      tokens.push(createToken(MULTIPLY, char))
+    }
+
+    if ( char === '/') {
+      tokens.push(createToken(DIVIDE, char))
+    }
     currentIdx++
   }
 
@@ -180,8 +189,12 @@ const buildAST = (tokens) => {
     }
 
 
-    // handle addition
-    if (next.type === PLUS || next.type === MINUS) {
+    if (
+      next.type === PLUS ||
+      next.type === MINUS ||
+      next.type === MULTIPLY ||
+      next.type === DIVIDE
+    ) {
       node.op = next.type
       const left = {
         type: 'Expression',
@@ -228,7 +241,7 @@ const init = () => {
 
   let result = add(five, ten);`
 
-  const tokens = tokenizer('15 + 2 + 5 - 1')
+  const tokens = tokenizer('15 + 5 - 1 * 6 / 2')
   const ast = buildAST(tokens)
 
 }
